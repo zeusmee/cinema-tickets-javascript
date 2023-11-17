@@ -4,7 +4,7 @@ import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
 import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
 
-// Define the TicketType class to represent different ticket types with their prices
+// TicketType class to represent different ticket types with their prices
 class TicketType {
   constructor(type, price) {
     this.type = type;
@@ -12,7 +12,6 @@ class TicketType {
   }
 }
 
-// Define the TicketService class
 export default class TicketService {
   // Class properties
   ticketPaymentService;
@@ -24,7 +23,7 @@ export default class TicketService {
     'INFANT': new TicketType('INFANT', 0),
   };
 
-  // Constructor to initialize the TicketService with payment and seat reservation services
+  // To initialize the TicketService with payment and seat reservation services
   constructor(ticketPaymentService, seatReservationService) {
     this.ticketPaymentService = ticketPaymentService;
     this.seatReservationService = seatReservationService;
@@ -33,22 +32,22 @@ export default class TicketService {
   // Main method to handle ticket purchases
   purchase(accountId, ticketTypeRequests) {
     // Validate the purchase
-    this.validatePurchase(ticketTypeRequests);
+    this._validatePurchase(ticketTypeRequests);
 
     // Calculate total price
-    const totalPrice = this.calculateTotalPrice(accountId, ticketTypeRequests);
+    const totalPrice = this._calculateTotalPrice(accountId, ticketTypeRequests);
 
     // Perform payment and seat reservation, handle exceptions
     return this.ticketPaymentService.pay(accountId, totalPrice)
-      .then(() => this.reserveSeats(ticketTypeRequests))
+      .then(() => this._reserveSeats(ticketTypeRequests))
       .catch(error => {
         throw new InvalidPurchaseException(error.message);
       });
   }
 
-  // Method to validate the purchase based on specified scenarios
-  validatePurchase(ticketTypeRequests) {
-    const totalTickets = this.calculateTotalTickets(ticketTypeRequests);
+  // To validate the purchase based on specified scenarios
+  _validatePurchase(ticketTypeRequests) {
+    const totalTickets = this._calculateTotalTickets(ticketTypeRequests);
 
     // Scenario: Only a maximum of 20 tickets can be purchased at a time.
     if (ticketTypeRequests.length > this.maxTicketsLimit) {
@@ -72,21 +71,21 @@ export default class TicketService {
     }
   }
 
-  // Method to calculate the total number of tickets in the request
-  calculateTotalTickets(ticketTypeRequests) {
+  // To calculate the total number of tickets in the request
+  _calculateTotalTickets(ticketTypeRequests) {
     return ticketTypeRequests.reduce((acc, { noOfTickets }) => acc + noOfTickets, 0);
   }
 
-  // Method to calculate the total price based on ticket types and quantities
-  calculateTotalPrice(accountId, ticketTypeRequests) {
+  // To calculate the total price based on ticket types and quantities
+  _calculateTotalPrice(accountId, ticketTypeRequests) {
     return ticketTypeRequests.reduce((acc, { getTicketType, noOfTickets }) => {
-      const price = this.getTicketPrice(getTicketType());
+      const price = this._getTicketPrice(getTicketType());
       return acc + (noOfTickets * price);
     }, 0);
   }
 
-  // Method to reserve seats based on the ticket types and quantities
-  reserveSeats(ticketTypeRequests) {
+  // To reserve seats based on the ticket types and quantities
+  _reserveSeats(ticketTypeRequests) {
     const seatsToReserve = ticketTypeRequests.reduce((acc, { getTicketType, noOfTickets }) => {
       const ticketType = getTicketType();
       const seatsRequired = ticketType === 'ADULT' || ticketType === 'CHILD' ? noOfTickets : 0;
@@ -96,8 +95,8 @@ export default class TicketService {
     return this.seatReservationService.reserveSeats(seatsToReserve);
   }
 
-  // Method to get the price of a specific ticket type
-  getTicketPrice(ticketType) {
+  // To get the price of a specific ticket type
+  _getTicketPrice(ticketType) {
     const ticketTypeObj = this.ticketTypes[ticketType];
     if (!ticketTypeObj) {
       throw new InvalidPurchaseException(`Invalid ticket type: ${ticketType}`);
