@@ -18,6 +18,7 @@ You will be assessed on:
 |    INFANT        |    £0       |
 |    CHILD         |    £10      |
 |    ADULT         |    £20      |
+
 - There is an existing `TicketPaymentService` responsible for taking payments.
 - There is an existing `SeatReservationService` responsible for reserving seats.
 ## Constraints
